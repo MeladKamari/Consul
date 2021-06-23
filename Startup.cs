@@ -96,10 +96,10 @@ namespace ConsulProject
                     Tags = new[] { "Students", "Courses", "School" },
                     Check = new AgentServiceCheck()
                     {
-                        HTTP = $"{uri.Scheme}://{uri.Host}:{uri.Port}/health",
+                        //HTTP = $"{uri.Scheme}://{uri.Host}:{uri.Port}/health",
                         Timeout = TimeSpan.FromSeconds(3),
                         Interval = TimeSpan.FromSeconds(10),
-                        //TCP = $"localhost:{uri.Port}",
+                        TCP = $"{uri.Host}:{uri.Port}",
                         DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(1),
                     }
                 };
