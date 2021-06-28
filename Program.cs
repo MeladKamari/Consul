@@ -1,13 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace ConsulProject
 {
@@ -22,17 +16,30 @@ namespace ConsulProject
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             var freePort = FreeTcpPort();
+
+            var _ip = "";
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork && ip.ToString().StartsWith("192"))
+                {
+                    _ip = ip.ToString();
+                }
+            }
             return Host.CreateDefaultBuilder(args)
                .ConfigureWebHostDefaults(webBuilder =>
                {
                    webBuilder.UseStartup<Startup>();
-                   webBuilder.UseUrls($"http://192.168.20.4:{freePort}");
+                   webBuilder.UseUrls($"http://{_ip}:{freePort}");
                });
         }
-           
+
 
         private static int FreeTcpPort()
         {
+
+
+
             var l = new TcpListener(IPAddress.Loopback, 0);
             l.Start();
             var port = ((IPEndPoint)l.LocalEndpoint).Port;

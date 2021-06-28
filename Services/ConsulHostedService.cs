@@ -8,9 +8,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static ConsulProject.Startup;
-
-namespace ConsulProject
+namespace ConsulProject.Services
 {
     public class ConsulHostedService : IHostedService
     {
@@ -21,7 +19,6 @@ namespace ConsulProject
         private readonly ILogger<ConsulHostedService> _logger;
         private readonly IServer _server;
         private string _registrationID;
-
         public ConsulHostedService(IConsulClient consulClient, IOptions<ConsulConfig> consulConfig, ILogger<ConsulHostedService> logger, IServer server)
         {
             _server = server;
@@ -32,17 +29,13 @@ namespace ConsulProject
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-
-            // Create a linked token so we can trigger cancellation outside of this token's cancellation
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
             var features = _server.Features;
             var addresses = features.Get<IServerAddressesFeature>();
             if (addresses.Addresses.Count == 0)
             {
-                addresses.Addresses.Add("http://localhost:5000"); // Add the default address to the IServerAddressesFeature
-
-               }
+                addresses.Addresses.Add("http://localhost:5000"); 
+            }
             var address = addresses.Addresses.First();
 
             var uri = new Uri(address);
@@ -82,7 +75,6 @@ namespace ConsulProject
             await _consulClient.Agent.ServiceDeregister(registration.ID, _cts.Token);
             await _consulClient.Agent.ServiceRegister(registration, _cts.Token);
         }
-
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _cts.Cancel();
